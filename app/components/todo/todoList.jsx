@@ -19,18 +19,24 @@ const TodoList = () => {
     }, []);
 
     const fetchTodos = async () => {
-        try {
-            const response = await fetch('/api/todo');
-            if (!response.ok) {
-                throw new Error('Failed to fetch todos');
-            }
-            const data = await response.json();
-            setTodos(data.todos);
-            setLoading(false);
-        } catch (error) {
-            console.error('Error fetching todos:', error.message);
+    setLoading(true); // ensure loading starts
+    try {
+        const response = await fetch('/api/todo');
+
+        if (!response.ok) {
+            throw new Error('Failed to fetch todos');
         }
-    };
+
+        const data = await response.json();
+        setTodos(data.todos || []); // safe fallback
+    } catch (error) {
+        console.error('Error fetching todos:', error.message);
+        setTodos([]); // prevent undefined state
+    } finally {
+        setLoading(false); // 🔥 CRITICAL FIX
+    }
+};
+
 
     const createTodo = async (newTodo) => {
         try {
